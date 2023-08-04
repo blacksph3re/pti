@@ -36,7 +36,6 @@ pub struct Task {
 pub struct Category {
     pub id: u32,
     pub name: String,
-    order: u32,
     pub hotkey: Option<char>,
 }
 
@@ -69,9 +68,19 @@ impl Category {
         Category {
             id,
             name,
-            order: id,
             hotkey: None,
         }
+    }
+
+    pub fn get_hotkey_string(&self) -> String {
+        match self.hotkey {
+            Some(hotkey) => format!("({})", hotkey),
+            None => String::new(),
+        }
+    }
+
+    pub fn get_description_string(&self) -> String {
+        self.name.clone()
     }
 }
 
@@ -83,7 +92,7 @@ impl PartialOrd for Category {
 
 impl Ord for Category {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.order.cmp(&other.order)
+        self.name.cmp(&other.name)
     }
 }
 
@@ -253,6 +262,12 @@ impl Database {
 
     pub fn tasks_printeable(&self) -> Vec<PrinteableTask> {
         get_printeable_tasklist(&self.tasks, &self.categories, None, 0)
+    }
+
+    pub fn categories_printeable(&self) -> Vec<Category> {
+        let mut retval = self.categories.iter().cloned().collect::<Vec<Category>>();
+        retval.sort();
+        retval
     }
 
     pub fn check_task(&mut self, task_id: u32) {

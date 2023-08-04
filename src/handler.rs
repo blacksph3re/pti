@@ -4,19 +4,18 @@ use tui_textarea::{CursorMove};
 
 fn handle_todo_view_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
     match key_event.code {
-        // Exit application on `ESC` or `q`
-        KeyCode::Esc => {
+        KeyCode::Esc | KeyCode::Enter => {
             app.select_no_task();
         }
-        // Exit application on `Ctrl-C`
-        KeyCode::Char('c') | KeyCode::Char('C') => {
+        KeyCode::Char('x') | KeyCode::Char('X') => {
             app.check_task();
         }
-        // Uncheck category
+        KeyCode::Char('c') | KeyCode::Char('C') | KeyCode::Char('h') | KeyCode::Char('H') => {
+            app.select_first_category();
+        }
         KeyCode::Char('u') | KeyCode::Char('U') => {
             app.set_category(None);
         }
-        // Counter handlers
         KeyCode::Up => {
             app.select_previous_task();
         }
@@ -59,6 +58,26 @@ fn handle_text_view_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> 
     Ok(())
 }
 
+fn handle_category_view_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
+    match key_event.code {
+        KeyCode::Esc => {
+            app.select_no_category();
+            app.select_no_task();
+        }
+        KeyCode::Char('c') | KeyCode::Char('C') => {
+            app.select_no_category();
+        }
+        KeyCode::Up => {
+            app.select_previous_category();
+        }
+        KeyCode::Down => {
+            app.select_next_category();
+        }
+        _ => {}
+    }
+    Ok(())
+}
+
 /// Handles the key events and updates the state of [`App`].
 pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
     match key_event.code {
@@ -68,10 +87,14 @@ pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
             Ok(())
         }
         _ => {
-            if app.selected_task == None {
-                handle_text_view_events(key_event, app)
+            if app.selected_category == None {
+                if app.selected_task == None {
+                    handle_text_view_events(key_event, app)
+                } else {
+                    handle_todo_view_events(key_event, app)
+                }
             } else {
-                handle_todo_view_events(key_event, app)
+                handle_category_view_events(key_event, app)
             }
         }
     }

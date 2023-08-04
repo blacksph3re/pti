@@ -33,7 +33,7 @@
     {
       "id": 3,
       "description": "Task 4",
-      "done": true,
+      "done": false,
       "past_pomodoros": [],
       "active_pomodoro_jointime": null,
       "parent": null,
@@ -63,25 +63,123 @@
     {
       "id": 6,
       "description": "Much better, and I can even resume typing",
-      "done": true,
+      "done": false,
       "past_pomodoros": [],
       "active_pomodoro_jointime": null,
       "parent": null,
       "category": 0,
       "date_added": "2023-08-04T16:19:28.777690788Z"
+    },
+    {
+      "id": 7,
+      "description": "It feels quite nice as well, it's quite fast...",
+      "done": false,
+      "past_pomodoros": [],
+      "active_pomodoro_jointime": null,
+      "parent": null,
+      "category": 0,
+      "date_added": "2023-08-04T16:21:03.359453215Z"
+    },
+    {
+      "id": 8,
+      "description": "hello world",
+      "done": false,
+      "past_pomodoros": [],
+      "active_pomodoro_jointime": null,
+      "parent": null,
+      "category": null,
+      "date_added": "2023-08-04T17:00:49.827391206Z"
+    },
+    {
+      "id": 9,
+      "description": "I can enter stuff here :)",
+      "done": false,
+      "past_pomodoros": [],
+      "active_pomodoro_jointime": null,
+      "parent": null,
+      "category": null,
+      "date_added": "2023-08-04T17:00:54.351404659Z"
+    },
+    {
+      "id": 10,
+      "description": "What happens in case I add a lot of tasks?",
+      "done": false,
+      "past_pomodoros": [],
+      "active_pomodoro_jointime": null,
+      "parent": null,
+      "category": null,
+      "date_added": "2023-08-04T17:17:33.162275528Z"
+    },
+    {
+      "id": 11,
+      "description": "Lets",
+      "done": false,
+      "past_pomodoros": [],
+      "active_pomodoro_jointime": null,
+      "parent": null,
+      "category": null,
+      "date_added": "2023-08-04T17:17:34.412208735Z"
+    },
+    {
+      "id": 12,
+      "description": "Find",
+      "done": false,
+      "past_pomodoros": [],
+      "active_pomodoro_jointime": null,
+      "parent": null,
+      "category": null,
+      "date_added": "2023-08-04T17:17:35.174785787Z"
+    },
+    {
+      "id": 13,
+      "description": "This",
+      "done": false,
+      "past_pomodoros": [],
+      "active_pomodoro_jointime": null,
+      "parent": null,
+      "category": null,
+      "date_added": "2023-08-04T17:17:35.951168815Z"
+    },
+    {
+      "id": 14,
+      "description": "Out",
+      "done": false,
+      "past_pomodoros": [],
+      "active_pomodoro_jointime": null,
+      "parent": null,
+      "category": null,
+      "date_added": "2023-08-04T17:17:37.192400956Z"
+    },
+    {
+      "id": 15,
+      "description": "Oh",
+      "done": false,
+      "past_pomodoros": [],
+      "active_pomodoro_jointime": null,
+      "parent": null,
+      "category": null,
+      "date_added": "2023-08-04T17:17:38.726996465Z"
+    },
+    {
+      "id": 16,
+      "description": "They disappear...",
+      "done": false,
+      "past_pomodoros": [],
+      "active_pomodoro_jointime": null,
+      "parent": null,
+      "category": null,
+      "date_added": "2023-08-04T17:17:42.585727225Z"
     }
   ],
   "categories": [
     {
       "id": 0,
       "name": "archive",
-      "order": 0,
       "hotkey": "a"
     },
     {
       "id": 1,
       "name": "todo",
-      "order": 1,
       "hotkey": "t"
     }
   ],

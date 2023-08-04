@@ -18,6 +18,7 @@ pub struct App<'a> {
     pub data_changed: bool,
 
     pub selected_task: Option<u32>,
+    pub selected_category: Option<u32>,
 }
 
 impl<'a> Default for App<'a> {
@@ -28,7 +29,8 @@ impl<'a> Default for App<'a> {
             running: true,
             data: Database::load_or_create(),
             data_changed: false,
-            selected_task: None
+            selected_task: None,
+            selected_category: None
         }
     }
 }
@@ -88,6 +90,55 @@ impl<'a> App<'a> {
                 }
             }
         }
+    }
+
+    pub fn select_previous_category(&mut self) {
+        let categorylist = self.data.categories_printeable();
+        match self.selected_category {
+            Some(selected) => {
+                let categorylist_index = categorylist.iter().position(|category| category.id == selected);
+                self.selected_category = match categorylist_index {
+                    Some(0) => Some(categorylist[categorylist.len() - 1].id),
+                    Some(index) => Some(categorylist[index - 1].id),
+                    None => None,
+                }
+            }
+            None => {
+                if categorylist.len() > 0 {
+                    self.selected_category = Some(categorylist[categorylist.len() - 1].id);
+                }
+            }
+        }
+    }
+
+    pub fn select_next_category(&mut self) {
+        let categorylist = self.data.categories_printeable();
+        match self.selected_category {
+            Some(selected) => {
+                let categorylist_index = categorylist.iter().position(|category| category.id == selected);
+                self.selected_category = match categorylist_index {
+                    Some(index) if index == categorylist.len() - 1 => Some(categorylist[0].id),
+                    Some(index) => Some(categorylist[index + 1].id),
+                    None => None,
+                }
+            }
+            None => {
+                if categorylist.len() > 0 {
+                    self.selected_category = Some(categorylist[0].id);
+                }
+            }
+        }
+    }
+
+    pub fn select_first_category(&mut self) {
+        let categorylist = self.data.categories_printeable();
+        if categorylist.len() > 0 {
+            self.selected_category = Some(categorylist[0].id);
+        }
+    }
+
+    pub fn select_no_category(&mut self) {
+        self.selected_category = None;
     }
 
     pub fn select_no_task(&mut self) {
