@@ -1,0 +1,60 @@
+{
+  "tasks": [
+    {
+      "id": 0,
+      "description": "Task 1",
+      "done": false,
+      "past_pomodoros": [],
+      "active_pomodoro_jointime": null,
+      "parent": null,
+      "category": null,
+      "date_added": "2023-07-24T19:38:43.799880491Z"
+    },
+    {
+      "id": 1,
+      "description": "Task 2",
+      "done": false,
+      "past_pomodoros": [],
+      "active_pomodoro_jointime": null,
+      "parent": null,
+      "category": null,
+      "date_added": "2023-07-24T19:38:43.799884982Z"
+    },
+    {
+      "id": 2,
+      "description": "Task 3",
+      "done": false,
+      "past_pomodoros": [],
+      "active_pomodoro_jointime": null,
+      "parent": null,
+      "category": null,
+      "date_added": "2023-07-24T19:38:43.799886069Z"
+    },
+    {
+      "id": 3,
+      "description": "Task 4",
+      "done": true,
+      "past_pomodoros": [],
+      "active_pomodoro_jointime": null,
+      "parent": null,
+      "category": null,
+      "date_added": "2023-07-24T19:38:43.799886698Z"
+    }
+  ],
+  "categories": [
+    {
+      "id": 0,
+      "name": "archive",
+      "order": 0,
+      "hotkey": "a"
+    },
+    {
+      "id": 1,
+      "name": "todo",
+      "order": 1,
+      "hotkey": "t"
+    }
+  ],
+  "pomodoro_duration_minutes": 25,
+  "active_pomodoro_starttime": null
+}

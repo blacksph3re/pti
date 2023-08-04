@@ -12,16 +12,30 @@ pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
         KeyCode::Char('c') | KeyCode::Char('C') => {
             if key_event.modifiers == KeyModifiers::CONTROL {
                 app.quit();
+            } else {
+                app.check_task();
             }
         }
-        // Counter handlers
-        KeyCode::Right => {
-            app.increment_counter();
+        // Uncheck category
+        KeyCode::Char('u') | KeyCode::Char('U') => {
+            app.set_category(None);
         }
-        KeyCode::Left => {
-            app.decrement_counter();
+        // Counter handlers
+        KeyCode::Up => {
+            app.select_previous_task();
+        }
+        KeyCode::Down => {
+            app.select_next_task();
         }
         // Other handlers you could add here.
+        KeyCode::Char(character) => {
+            match app.data.get_category_by_hotkey(character) {
+                Some(category) => {
+                    app.set_category(Some(category.id));
+                }
+                None => {}
+            }
+        }
         _ => {}
     }
     Ok(())
