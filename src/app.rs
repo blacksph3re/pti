@@ -141,7 +141,7 @@ impl<'a> App<'a> {
         self.selected_category = None;
     }
 
-    pub fn make_default_category(&mut self, category: Option<u32>) {
+    pub fn make_default_category(&mut self, category: u32) {
         self.data.make_default_category(category);
         self.data_changed = true;
     }
@@ -170,7 +170,7 @@ impl<'a> App<'a> {
         self.data_changed = true;
     }
 
-    pub fn set_category(&mut self, category: Option<u32>) {
+    pub fn set_category(&mut self, category: u32) {
         match self.selected_task {
             Some(selected) => {
                 self.data.set_category(selected, category);

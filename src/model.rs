@@ -24,7 +24,7 @@ pub struct Task {
     past_pomodoros: Vec<Pomodoro>,
     active_pomodoro_jointime: Option<DateTime<Utc>>,
     parent: Option<u32>,
-    category: Option<u32>,
+    category: u32,
     date_added: DateTime<Utc>,
 }
 
@@ -50,7 +50,7 @@ pub struct Database {
     categories: Vec<Category>,
     pomodoro_duration_minutes: u32,
     active_pomodoro_starttime: Option<DateTime<Utc>>,
-    default_category_id: Option<u32>,
+    default_category_id: u32,
 }
 
 
@@ -67,11 +67,11 @@ pub fn get_category_by_id(categories: &[Category], id: u32) -> Option<&Category>
 }
 
 impl Category {
-    pub fn new(id: u32, name: String) -> Category {
+    pub fn new(id: u32, name: String, hotkey: Option<char>) -> Category {
         Category {
             id,
             name,
-            hotkey: None,
+            hotkey,
             visible: true,
         }
     }
@@ -91,7 +91,7 @@ impl Ord for Category {
 
 
 impl Task {
-    pub fn new(id: u32, description: String, category: Option<u32>) -> Task {
+    pub fn new(id: u32, description: String, category: u32) -> Task {
         Task {
             id,
             description,
@@ -138,16 +138,12 @@ pub struct PrinteableTask {
     pub time_spent: Duration,
     pub pomodoro_active: bool,
     pub indent: u32,
-    pub category: Option<Category>,
+    pub category: Category,
     pub date_added: DateTime<Utc>,
 }
 
 impl PrinteableTask {
     pub fn new(task: &Task, categories: &[Category], indent: u32) -> PrinteableTask {
-        let category = match task.category {
-            Some(category_id) => get_category_by_id(categories, category_id).cloned(),
-            None => None,
-        };
         PrinteableTask {
             id: task.id,
             description: task.description.clone(),
@@ -155,7 +151,7 @@ impl PrinteableTask {
             time_spent: task.time_spent(),
             pomodoro_active: task.pomodoro_active(),
             indent,
-            category,
+            category: get_category_by_id(categories, task.category).unwrap().clone(),
             date_added: task.date_added,
         }
     }
@@ -175,9 +171,10 @@ impl PrinteableTask {
     }
 
     pub fn get_category_string(&self) -> String {
-        match self.category {
-            Some(ref category) => format!("({})", category.name),
-            None => "()".to_string(),
+        if self.category.name == "nocat" {
+            "".to_string()
+        } else {
+            self.category.name.clone()
         }
     }
 
@@ -193,11 +190,7 @@ impl PrinteableTask {
 
 pub fn get_printeable_tasklist(tasks: &[Task], categories: &[Category], parent: Option<u32>, indent: u32) -> Vec<PrinteableTask> {
     let mut current_level_tasks: Vec<&Task> = tasks.iter().filter(|task| {
-        let visible = match task.category {
-            Some(category_id) => get_category_by_id(categories, category_id).unwrap().visible,
-            None => true,
-        };
-        visible && task.parent == parent 
+        get_category_by_id(categories, task.category).unwrap().visible && task.parent == parent 
     }).collect();
     current_level_tasks.sort_by(|a, b| a.date_added.cmp(&b.date_added));
     current_level_tasks.iter().map(|task| {
@@ -237,9 +230,14 @@ impl PrinteableCategory {
     }
 
     pub fn get_description_string(&self) -> String {
+        let name = if self.category.name == "nocat" {
+            "no category".to_string()
+        } else {
+            self.category.name.clone()
+        };
         match self.default {
-            true => format!("{} (default)", self.category.name),
-            false => self.category.name.clone(),
+            true => format!("{} (default)", name),
+            false => name,
         }
     }
 }
@@ -248,25 +246,23 @@ impl Database {
     pub fn new() -> Database {
         Database {
             tasks: Vec::new(),
-            categories: Vec::new(),
+            categories: vec![Category::new(0, "nocat".to_string(), Some('u'))],
             pomodoro_duration_minutes: 25,
             active_pomodoro_starttime: None,
-            default_category_id: None,
+            default_category_id: 0,
         }
     }
 
     fn example_db() -> Database {
         let mut database = Database::new();
-        database.categories.push(Category::new(0, "archive".to_string()));
-        database.categories[0].hotkey = Some('a');
+        database.categories.push(Category::new(1, "archive".to_string(), Some('a')));
         database.categories[0].visible = false;
-        database.categories.push(Category::new(1, "todo".to_string()));
-        database.categories[1].hotkey = Some('t');
-        database.default_category_id = Some(1);
-        database.tasks.push(Task::new(0, "Task 1".to_string(), None));
-        database.tasks.push(Task::new(1, "Task 2".to_string(), Some(0)));
-        database.tasks.push(Task::new(2, "Task 3".to_string(), Some(1)));
-        database.tasks.push(Task::new(3, "Task 4".to_string(), None));
+        database.categories.push(Category::new(2, "todo".to_string(), Some('t')));
+        database.default_category_id = 2;
+        database.tasks.push(Task::new(0, "Task 1".to_string(), 0));
+        database.tasks.push(Task::new(1, "Task 2".to_string(), 1));
+        database.tasks.push(Task::new(2, "Task 3".to_string(), 2));
+        database.tasks.push(Task::new(3, "Task 4".to_string(), 0));
         database
     }
 
@@ -309,7 +305,7 @@ impl Database {
             .into_iter()
             .sorted()
             .map(|category| {
-                let is_default = self.default_category_id == Some(category.id);
+                let is_default = self.default_category_id == category.id;
                 PrinteableCategory::new(category, is_default)
             })
             .collect::<Vec<PrinteableCategory>>()
@@ -320,7 +316,7 @@ impl Database {
         task.done = !task.done;
     }
 
-    pub fn set_category(&mut self, task_id: u32, category_id: Option<u32>) {
+    pub fn set_category(&mut self, task_id: u32, category_id: u32) {
         let task = self.tasks.iter_mut().find(|task| task.id == task_id).expect("Task not found");
         task.category = category_id;
     }
@@ -334,7 +330,7 @@ impl Database {
         self.tasks.push(Task::new(highest_id+1, description, self.default_category_id));
     }
 
-    pub fn make_default_category(&mut self, category_id: Option<u32>) {
+    pub fn make_default_category(&mut self, category_id: u32) {
         self.default_category_id = category_id;
     }
 

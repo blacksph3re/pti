@@ -57,18 +57,13 @@ fn render_category_table<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>, re
         .style(Style::default().bg(Color::Blue))
         .height(1)
         .bottom_margin(1);
-    let mut rows = categorylist.iter().map(|item| {
+    let rows = categorylist.iter().map(|item| {
         Row::new(vec![
             Cell::from(item.get_visible_string()),
             Cell::from(item.get_hotkey_string()),
             Cell::from(item.get_description_string()),
         ])
     }).collect::<Vec<Row>>();
-    rows.insert(0, Row::new(vec![
-        Cell::from("(x)"),
-        Cell::from("(u)"),
-        Cell::from("No Category"),
-    ]));
     let t = Table::new(rows)
         .header(header)
         .block(Block::default().borders(Borders::ALL).title("Categories"))
@@ -79,10 +74,7 @@ fn render_category_table<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>, re
             Constraint::Percentage(100),
         ]);
     let selected_category_index = match app.selected_category {
-        Some(selected) => match categorylist.iter().position(|category| category.id == selected) {
-            Some(index) => Some(index + 1),
-            None => None,
-        },
+        Some(selected) => categorylist.iter().position(|category| category.id == selected),
         None => None,
     };
     frame.render_stateful_widget(t, *rect, &mut app.tablestate

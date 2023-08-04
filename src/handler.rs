@@ -13,9 +13,6 @@ fn handle_todo_view_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> 
         KeyCode::Char('c') | KeyCode::Char('C') | KeyCode::Char('h') | KeyCode::Char('H') => {
             app.select_first_category();
         }
-        KeyCode::Char('u') | KeyCode::Char('U') => {
-            app.set_category(None);
-        }
         KeyCode::Up => {
             app.select_previous_task();
         }
@@ -30,7 +27,7 @@ fn handle_todo_view_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> 
                     if key_event.modifiers == KeyModifiers::CONTROL {
                         app.toggle_category_visible(category.id);
                     } else {
-                        app.set_category(Some(category.id));
+                        app.set_category(category.id);
                     }
                 }
                 None => {}
@@ -79,15 +76,10 @@ fn handle_category_view_events(key_event: KeyEvent, app: &mut App) -> AppResult<
             app.select_next_category();
         }
         KeyCode::Char('d') | KeyCode::Char('D') => {
-            app.make_default_category(app.selected_category);
+            app.make_default_category(app.selected_category.expect("Category handler called without a selected category"));
         }
         KeyCode::Char('x') | KeyCode::Char('X') => {
-            match app.selected_category {
-                Some(category) => {
-                    app.toggle_category_visible(category);
-                }
-                None => {}
-            }
+            app.toggle_category_visible(app.selected_category.expect("Category handler called without a selected category"));
         }
         // Check for category hotkeys
         KeyCode::Char(character) if key_event.modifiers == KeyModifiers::CONTROL => {

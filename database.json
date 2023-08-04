@@ -7,8 +7,8 @@
       "past_pomodoros": [],
       "active_pomodoro_jointime": null,
       "parent": null,
-      "category": null,
-      "date_added": "2023-08-04T18:47:22.163807845Z"
+      "category": 2,
+      "date_added": "2023-08-04T19:25:49.317749229Z"
     },
     {
       "id": 1,
@@ -17,8 +17,8 @@
       "past_pomodoros": [],
       "active_pomodoro_jointime": null,
       "parent": null,
-      "category": 0,
-      "date_added": "2023-08-04T18:47:22.163815675Z"
+      "category": 2,
+      "date_added": "2023-08-04T19:25:49.317756793Z"
     },
     {
       "id": 2,
@@ -27,8 +27,8 @@
       "past_pomodoros": [],
       "active_pomodoro_jointime": null,
       "parent": null,
-      "category": 1,
-      "date_added": "2023-08-04T18:47:22.163816182Z"
+      "category": 2,
+      "date_added": "2023-08-04T19:25:49.317757290Z"
     },
     {
       "id": 3,
@@ -37,8 +37,8 @@
       "past_pomodoros": [],
       "active_pomodoro_jointime": null,
       "parent": null,
-      "category": null,
-      "date_added": "2023-08-04T18:47:22.163816545Z"
+      "category": 2,
+      "date_added": "2023-08-04T19:25:49.317757701Z"
     },
     {
       "id": 4,
@@ -47,29 +47,35 @@
       "past_pomodoros": [],
       "active_pomodoro_jointime": null,
       "parent": null,
-      "category": 1,
-      "date_added": "2023-08-04T18:47:25.900206551Z"
+      "category": 2,
+      "date_added": "2023-08-04T19:26:24.280457980Z"
     },
     {
       "id": 5,
-      "description": "Test",
+      "description": "Test task 2",
       "done": false,
       "past_pomodoros": [],
       "active_pomodoro_jointime": null,
       "parent": null,
-      "category": 0,
-      "date_added": "2023-08-04T18:50:58.549571422Z"
+      "category": 2,
+      "date_added": "2023-08-04T19:26:44.312525900Z"
     }
   ],
   "categories": [
     {
       "id": 0,
+      "name": "nocat",
+      "hotkey": "u",
+      "visible": true
+    },
+    {
+      "id": 1,
       "name": "archive",
       "hotkey": "a",
       "visible": true
     },
     {
-      "id": 1,
+      "id": 2,
       "name": "todo",
       "hotkey": "t",
       "visible": true
@@ -77,5 +83,5 @@
   ],
   "pomodoro_duration_minutes": 25,
   "active_pomodoro_starttime": null,
-  "default_category_id": 1
+  "default_category_id": 0
 }
