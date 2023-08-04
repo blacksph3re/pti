@@ -3,8 +3,8 @@ use pti::event::{Event, EventHandler};
 use pti::handler::handle_key_events;
 use pti::tui::Tui;
 use std::io;
-use tui::backend::CrosstermBackend;
-use tui::Terminal;
+use ratatui::backend::CrosstermBackend;
+use ratatui::Terminal;
 
 fn main() -> AppResult<()> {
     // Create an application.

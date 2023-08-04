@@ -1,6 +1,6 @@
 use std::error;
 use crate::model::Database;
-use tui::widgets::TableState;
+use ratatui::widgets::TableState;
 use tui_textarea::TextArea;
 
 /// Application result type.
@@ -90,6 +90,10 @@ impl<'a> App<'a> {
         }
     }
 
+    pub fn select_no_task(&mut self) {
+        self.selected_task = None;
+    }
+
     pub fn check_task(&mut self) {
         match self.selected_task {
             Some(selected) => {
@@ -98,6 +102,11 @@ impl<'a> App<'a> {
             }
             None => {}
         }
+    }
+
+    pub fn add_task(&mut self, task: String) {
+        self.data.add_task_from_string(task);
+        self.data_changed = true;
     }
 
     pub fn set_category(&mut self, category: Option<u32>) {

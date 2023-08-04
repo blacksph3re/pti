@@ -268,4 +268,9 @@ impl Database {
     pub fn get_category_by_hotkey(&self, hotkey: char) -> Option<&Category> {
         self.categories.iter().find(|category| category.hotkey == Some(hotkey))
     }
+
+    pub fn add_task_from_string(&mut self, description: String) {
+        let highest_id = self.tasks.iter().map(|task| task.id).max().unwrap_or(0);
+        self.tasks.push(Task::new(highest_id+1, description, None));
+    }
 }

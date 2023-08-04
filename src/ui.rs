@@ -1,8 +1,8 @@
-use tui::{
+use ratatui::{
     backend::Backend,
     style::{Color, Style, Modifier},
     widgets::{Block, Borders, Cell, Row, Table},
-    layout::{Layout, Constraint, Rect},
+    layout::{Layout, Constraint, Rect, Direction},
     Frame,
 };
 
@@ -31,7 +31,7 @@ pub fn render_table<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>, rect: &
     });
     let t = Table::new(rows)
         .header(header)
-        .block(Block::default().borders(Borders::ALL).title("Table"))
+        .block(Block::default().borders(Borders::ALL).title("Todos"))
         .highlight_style(Style::default().add_modifier(Modifier::REVERSED))
         .highlight_symbol(">> ")
         .widths(&[
@@ -43,12 +43,24 @@ pub fn render_table<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>, rect: &
     frame.render_stateful_widget(t, *rect, &mut app.tablestate);
 }
 
+pub fn render_input<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>, rect: &Rect) {
+    app.textarea.set_style(Style::default());
+    app.textarea.set_cursor_line_style(Style::default());
+    app.textarea.set_block(Block::default().borders(Borders::ALL).title("New Task"));
+    frame.render_widget(app.textarea.widget(), *rect);
+}
+
 /// Renders the user interface widgets.
 pub fn render<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>) {
     let rects = Layout::default()
-        .constraints([Constraint::Percentage(100)].as_ref())
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Min(5),
+            Constraint::Length(3),
+            ].as_ref())
         .margin(1)
         .split(frame.size());
     
     render_table(app, frame, &rects[0]);
+    render_input(app, frame, &rects[1])
 }

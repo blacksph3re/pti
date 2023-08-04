@@ -7,7 +7,7 @@
       "past_pomodoros": [],
       "active_pomodoro_jointime": null,
       "parent": null,
-      "category": null,
+      "category": 0,
       "date_added": "2023-07-24T19:38:43.799880491Z"
     },
     {
@@ -37,8 +37,38 @@
       "past_pomodoros": [],
       "active_pomodoro_jointime": null,
       "parent": null,
-      "category": null,
+      "category": 0,
       "date_added": "2023-07-24T19:38:43.799886698Z"
+    },
+    {
+      "id": 4,
+      "description": "astarstastarstarstarts",
+      "done": false,
+      "past_pomodoros": [],
+      "active_pomodoro_jointime": null,
+      "parent": null,
+      "category": null,
+      "date_added": "2023-08-04T16:07:25.991163005Z"
+    },
+    {
+      "id": 5,
+      "description": "Get the dishes done",
+      "done": false,
+      "past_pomodoros": [],
+      "active_pomodoro_jointime": null,
+      "parent": null,
+      "category": null,
+      "date_added": "2023-08-04T16:12:10.307761920Z"
+    },
+    {
+      "id": 6,
+      "description": "Much better, and I can even resume typing",
+      "done": true,
+      "past_pomodoros": [],
+      "active_pomodoro_jointime": null,
+      "parent": null,
+      "category": 0,
+      "date_added": "2023-08-04T16:19:28.777690788Z"
     }
   ],
   "categories": [
