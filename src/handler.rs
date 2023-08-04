@@ -19,6 +19,12 @@ fn handle_todo_view_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> 
         KeyCode::Down => {
             app.select_next_task();
         }
+        KeyCode::Char('p') | KeyCode::Char('P') => {
+            app.toggle_pomodoro();
+        }
+        KeyCode::Char('n') | KeyCode::Char('N') => {
+            app.notification_manager.notify("Test notification", "This is a test notification");
+        }
         // Check for category hotkeys
         KeyCode::Char(character) => {
             match app.data.get_category_by_hotkey(character) {

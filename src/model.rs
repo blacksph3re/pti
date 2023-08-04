@@ -1,8 +1,7 @@
 use chrono::{Duration, Utc, DateTime};
 use serde::{Serialize, Deserialize};
-use std::cmp::Ordering;
+use std::cmp::{Ordering};
 use itertools::Itertools;
-
 
 #[derive(Clone)]
 #[derive(Serialize)]
@@ -116,15 +115,15 @@ impl Task {
         self.active_pomodoro_jointime.is_some()
     }
 
-    pub fn join_pomodoro(&mut self) {
-        self.active_pomodoro_jointime = Some(Utc::now());
+    pub fn join_pomodoro(&mut self, now: DateTime<Utc>) {
+        self.active_pomodoro_jointime = Some(now);
     }
 
-    pub fn leave_pomodoro(&mut self) {
+    pub fn leave_pomodoro(&mut self, now: DateTime<Utc>) {
         if let Some(jointime) = self.active_pomodoro_jointime {
             self.past_pomodoros.push(Pomodoro {
                 start_time: jointime,
-                end_time: Utc::now(),
+                end_time: now,
             });
             self.active_pomodoro_jointime = None;
         }
@@ -167,7 +166,7 @@ impl PrinteableTask {
     }
 
     pub fn get_time_spent_string(&self) -> String {
-        format!("{:02}:{:02}", self.time_spent.num_hours(), self.time_spent.num_minutes() % 60)
+        format!("{:02}:{:02}:{:02}", self.time_spent.num_hours(), self.time_spent.num_minutes() % 60, self.time_spent.num_seconds() % 60)
     }
 
     pub fn get_category_string(&self) -> String {
@@ -337,5 +336,41 @@ impl Database {
     pub fn toggle_category_visible(&mut self, category_id: u32) {
         let mut category = self.categories.iter_mut().find(|category| category.id == category_id).expect("Category not found");
         category.visible = !category.visible;
+    }
+
+    // Returns the duration left in minutes and the fraction of the pomodoro that has passed
+    pub fn get_remaining_pomodoro_time(&self) -> Option<(Duration, f64)> {
+        match self.active_pomodoro_starttime {
+            Some(starttime) => {
+                let pomodoro_duration = Duration::minutes(self.pomodoro_duration_minutes.into());
+                let now = Utc::now();
+                let duration = now - starttime;
+                let duration_left = pomodoro_duration - duration;
+                let fraction = duration.num_milliseconds() as f64 / pomodoro_duration.num_milliseconds() as f64;
+                if fraction > 1.0 {
+                    return Some((Duration::seconds(0), 0.0))
+                }
+                Some((duration_left, fraction))
+            },
+            None => None,
+        }
+    }
+
+    pub fn toggle_pomodoro(&mut self, task_id: u32) {
+        let task = self.tasks.iter_mut().find(|task| task.id == task_id).expect("Task not found");
+        let now = Utc::now();
+        if task.pomodoro_active() {
+            task.leave_pomodoro(now.clone());
+            // Check if there is still a task with a pomodoro running, if not stop the timer
+            if !self.tasks.iter().any(|task| task.pomodoro_active()) {
+                self.active_pomodoro_starttime = None;
+            }
+        } else {
+            // Make sure a pomodoro is running
+            if self.active_pomodoro_starttime.is_none() {
+                self.active_pomodoro_starttime = Some(now.clone());
+            }
+            task.join_pomodoro(now.clone());
+        }
     }
 }

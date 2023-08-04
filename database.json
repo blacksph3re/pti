@@ -14,10 +14,15 @@
       "id": 1,
       "description": "Task 2",
       "done": false,
-      "past_pomodoros": [],
+      "past_pomodoros": [
+        {
+          "start_time": "2023-08-04T21:33:23.448309310Z",
+          "end_time": "2023-08-04T21:38:12.655151603Z"
+        }
+      ],
       "active_pomodoro_jointime": null,
       "parent": null,
-      "category": 2,
+      "category": 1,
       "date_added": "2023-08-04T19:25:49.317756793Z"
     },
     {
@@ -34,8 +39,13 @@
       "id": 3,
       "description": "Task 4",
       "done": false,
-      "past_pomodoros": [],
-      "active_pomodoro_jointime": null,
+      "past_pomodoros": [
+        {
+          "start_time": "2023-08-04T21:33:12.831183220Z",
+          "end_time": "2023-08-04T21:33:19.720494875Z"
+        }
+      ],
+      "active_pomodoro_jointime": "2023-08-04T21:36:31.632053682Z",
       "parent": null,
       "category": 2,
       "date_added": "2023-08-04T19:25:49.317757701Z"
@@ -54,7 +64,12 @@
       "id": 5,
       "description": "Test task 2",
       "done": false,
-      "past_pomodoros": [],
+      "past_pomodoros": [
+        {
+          "start_time": "2023-08-04T21:33:08.515988010Z",
+          "end_time": "2023-08-04T21:33:18.157298291Z"
+        }
+      ],
       "active_pomodoro_jointime": null,
       "parent": null,
       "category": 2,
@@ -82,6 +97,6 @@
     }
   ],
   "pomodoro_duration_minutes": 25,
-  "active_pomodoro_starttime": null,
+  "active_pomodoro_starttime": "2023-08-04T21:33:23.448309310Z",
   "default_category_id": 0
 }

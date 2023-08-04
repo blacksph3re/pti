@@ -1,5 +1,6 @@
 use std::error;
 use crate::model::Database;
+use crate::notification::NotificationManager;
 use ratatui::widgets::TableState;
 use tui_textarea::TextArea;
 
@@ -19,6 +20,8 @@ pub struct App<'a> {
 
     pub selected_task: Option<u32>,
     pub selected_category: Option<u32>,
+
+    pub notification_manager: NotificationManager,
 }
 
 impl<'a> Default for App<'a> {
@@ -30,7 +33,8 @@ impl<'a> Default for App<'a> {
             data: Database::load_or_create(),
             data_changed: false,
             selected_task: None,
-            selected_category: None
+            selected_category: None,
+            notification_manager: NotificationManager::new(),
         }
     }
 }
@@ -172,12 +176,29 @@ impl<'a> App<'a> {
 
     pub fn set_category(&mut self, category: u32) {
         match self.selected_task {
-            Some(selected) => {
-                self.data.set_category(selected, category);
+            Some(selected_task_id) => {
+                let mut previous_index = self.data.tasks_printeable().iter().position(|task| task.id == selected_task_id).expect("Task not found");
+                self.data.set_category(selected_task_id, category);
+                // Find the closest task to the previous one in case this one got invisible
+                let new_tasklist = self.data.tasks_printeable();
+                if previous_index >= new_tasklist.len() {
+                    previous_index = new_tasklist.len() - 1;
+                }
+                self.selected_task = Some(new_tasklist[previous_index].id);
+
                 self.data_changed = true;
             }
             None => {}
         }
     }
 
+    pub fn toggle_pomodoro(&mut self) {
+        match self.selected_task {
+            Some(selected) => {
+                self.data.toggle_pomodoro(selected);
+                self.data_changed = true;
+            }
+            None => {}
+        }
+    }
 }
