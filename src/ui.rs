@@ -95,7 +95,7 @@ fn render_input<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>, rect: &Rect
 }
 
 fn render_help_text<B: Backend>(frame: &mut Frame<'_, B>, rect: &Rect) {
-    let p = Paragraph::new("Ctrl+c to quit, Up/Down to select a task, Esc to switch to view mode, c to switch to category view, x to check task, ctrl+<hotkey> to toggle category visibility, d to set default category")
+    let p = Paragraph::new("Ctrl+c to quit, Up/Down to select a task, Esc to switch to view mode, c to switch to category view, x to check task, ctrl+<hotkey> to toggle category visibility, d to set default category, n to test notifications")
         .block(Block::default().title("Help").borders(Borders::ALL))
         .style(Style::default().fg(Color::White).bg(Color::Black))
         .wrap(Wrap { trim: false });
