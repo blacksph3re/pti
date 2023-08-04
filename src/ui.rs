@@ -23,24 +23,28 @@ fn render_todo_table<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>, rect: 
             Cell::from(item.get_time_spent_string()),
             Cell::from(item.get_category_string()),
             Cell::from(item.get_description_string()),
-        ]).style(if app.selected_task == Some(item.id) {
-            Style::default().add_modifier(Modifier::BOLD)
-        } else {
-            Style::default()
-        })
+        ])
     });
+
+
     let t = Table::new(rows)
         .header(header)
         .block(Block::default().borders(Borders::ALL).title("Todos"))
-        .highlight_style(Style::default().add_modifier(Modifier::REVERSED))
-        .highlight_symbol(">> ")
+        .highlight_style(Style::default().add_modifier(Modifier::BOLD))
         .widths(&[
             Constraint::Length(3),
             Constraint::Min(5),
             Constraint::Min(10),
             Constraint::Percentage(100),
         ]);
-    frame.render_stateful_widget(t, *rect, &mut app.tablestate);
+    let selected_task_index = match app.selected_task {
+        Some(selected) => tasklist.iter().position(|task| task.id == selected),
+        None => None,
+    };
+    frame.render_stateful_widget(t, *rect, &mut app.tablestate
+        .clone()
+        .with_selected(selected_task_index)
+        .with_offset(0));
 }
 
 fn render_category_table<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>, rect: &Rect) {

@@ -60,7 +60,7 @@ impl<'a> App<'a> {
             Some(selected) => {
                 let tasklist_index = tasklist.iter().position(|task| task.id == selected);
                 self.selected_task = match tasklist_index {
-                    Some(0) => Some(tasklist[tasklist.len() - 1].id),
+                    Some(0) => Some(tasklist[0].id),
                     Some(index) => Some(tasklist[index - 1].id),
                     None => None,
                 }
@@ -79,7 +79,7 @@ impl<'a> App<'a> {
             Some(selected) => {
                 let tasklist_index = tasklist.iter().position(|task| task.id == selected);
                 self.selected_task = match tasklist_index {
-                    Some(index) if index == tasklist.len() - 1 => Some(tasklist[0].id),
+                    Some(index) if index == tasklist.len() - 1 => Some(tasklist[index].id),
                     Some(index) => Some(tasklist[index + 1].id),
                     None => None,
                 }
@@ -98,7 +98,7 @@ impl<'a> App<'a> {
             Some(selected) => {
                 let categorylist_index = categorylist.iter().position(|category| category.id == selected);
                 self.selected_category = match categorylist_index {
-                    Some(0) => Some(categorylist[categorylist.len() - 1].id),
+                    Some(0) => Some(categorylist[0].id),
                     Some(index) => Some(categorylist[index - 1].id),
                     None => None,
                 }
@@ -117,7 +117,7 @@ impl<'a> App<'a> {
             Some(selected) => {
                 let categorylist_index = categorylist.iter().position(|category| category.id == selected);
                 self.selected_category = match categorylist_index {
-                    Some(index) if index == categorylist.len() - 1 => Some(categorylist[0].id),
+                    Some(index) if index == categorylist.len() - 1 => Some(categorylist[index].id),
                     Some(index) => Some(categorylist[index + 1].id),
                     None => None,
                 }

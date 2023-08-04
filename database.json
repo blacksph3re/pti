@@ -163,7 +163,7 @@
     {
       "id": 16,
       "description": "They disappear...",
-      "done": false,
+      "done": true,
       "past_pomodoros": [],
       "active_pomodoro_jointime": null,
       "parent": null,
