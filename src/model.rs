@@ -373,4 +373,29 @@ impl Database {
             task.join_pomodoro(now.clone());
         }
     }
+
+    pub fn check_active_pomodoro_over(&mut self) -> Option<Vec<String>> {
+        let now = Utc::now();
+
+        match self.active_pomodoro_starttime {
+            Some(starttime) => {
+                let pomodoro_duration = Duration::minutes(self.pomodoro_duration_minutes.into());
+                let duration = now - starttime;
+                if duration > pomodoro_duration {
+                    let mut tasks: Vec<String> = Vec::new();
+                    for task in self.tasks.iter_mut() {
+                        if task.pomodoro_active() {
+                            task.leave_pomodoro(starttime + pomodoro_duration);
+                            tasks.push(task.description.clone());
+                        }
+                    }
+                    self.active_pomodoro_starttime = None;
+                    Some(tasks)
+                } else {
+                    None
+                }
+            },
+            None => None,
+        }
+    }
 }

@@ -47,9 +47,20 @@ impl<'a> App<'a> {
 
     /// Handles the tick event of the terminal.
     pub fn tick(&mut self) {
+        // If some data has changed, save it.
         if self.data_changed {
             self.data.save();
             self.data_changed = false;
+        }
+
+        // Check if a pomodoro is over
+        match self.data.check_active_pomodoro_over() {
+            Some(task_descriptions) => {
+                self.data.save();
+                let body = format!("{} Tasks are over:\n{}", task_descriptions.len(), task_descriptions.join("\n"));
+                self.notification_manager.notify("Pomodoro over!", &body);
+            }
+            None => {}
         }
     }
 
