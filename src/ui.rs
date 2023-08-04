@@ -44,12 +44,13 @@ fn render_todo_table<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>, rect: 
     frame.render_stateful_widget(t, *rect, &mut app.tablestate
         .clone()
         .with_selected(selected_task_index)
-        .with_offset(0));
+        .with_offset(0)
+    );
 }
 
 fn render_category_table<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>, rect: &Rect) {
     let categorylist = app.data.categories_printeable();
-    let header_cells = ["Hotkey", "Name"]
+    let header_cells = ["Show", "Hotkey", "Name"]
         .iter()
         .map(|h| Cell::from(*h).style(Style::default().fg(Color::Red)));
     let header = Row::new(header_cells)
@@ -58,28 +59,36 @@ fn render_category_table<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>, re
         .bottom_margin(1);
     let mut rows = categorylist.iter().map(|item| {
         Row::new(vec![
+            Cell::from(item.get_visible_string()),
             Cell::from(item.get_hotkey_string()),
             Cell::from(item.get_description_string()),
-        ]).style(if app.selected_category == Some(item.id) {
-            Style::default().add_modifier(Modifier::BOLD)
-        } else {
-            Style::default()
-        })
+        ])
     }).collect::<Vec<Row>>();
     rows.insert(0, Row::new(vec![
+        Cell::from("(x)"),
         Cell::from("(u)"),
         Cell::from("No Category"),
     ]));
     let t = Table::new(rows)
         .header(header)
         .block(Block::default().borders(Borders::ALL).title("Categories"))
-        .highlight_style(Style::default().add_modifier(Modifier::REVERSED))
-        .highlight_symbol(">> ")
+        .highlight_style(Style::default().add_modifier(Modifier::BOLD))
         .widths(&[
+            Constraint::Length(4),
             Constraint::Length(6),
             Constraint::Percentage(100),
         ]);
-    frame.render_stateful_widget(t, *rect, &mut app.tablestate);
+    let selected_category_index = match app.selected_category {
+        Some(selected) => match categorylist.iter().position(|category| category.id == selected) {
+            Some(index) => Some(index + 1),
+            None => None,
+        },
+        None => None,
+    };
+    frame.render_stateful_widget(t, *rect, &mut app.tablestate
+        .clone()
+        .with_selected(selected_category_index)
+        .with_offset(0));
 }
 
 fn render_input<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>, rect: &Rect) {
@@ -94,7 +103,7 @@ fn render_input<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>, rect: &Rect
 }
 
 fn render_help_text<B: Backend>(frame: &mut Frame<'_, B>, rect: &Rect) {
-    let p = Paragraph::new("Ctrl+c to quit, Up/Down to select a task, Esc to switch to view mode, c to switch to category view, x to check task")
+    let p = Paragraph::new("Ctrl+c to quit, Up/Down to select a task, Esc to switch to view mode, c to switch to category view, x to check task, ctrl+<hotkey> to toggle category visibility, d to set default category")
         .block(Block::default().title("Help").borders(Borders::ALL))
         .style(Style::default().fg(Color::White).bg(Color::Black))
         .wrap(Wrap { trim: false });

@@ -26,7 +26,12 @@ fn handle_todo_view_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> 
         KeyCode::Char(character) => {
             match app.data.get_category_by_hotkey(character) {
                 Some(category) => {
-                    app.set_category(Some(category.id));
+                    // Without ctrl, assigns the current task to the category. With crtl, toggles the category visibility
+                    if key_event.modifiers == KeyModifiers::CONTROL {
+                        app.toggle_category_visible(category.id);
+                    } else {
+                        app.set_category(Some(category.id));
+                    }
                 }
                 None => {}
             }
@@ -72,6 +77,26 @@ fn handle_category_view_events(key_event: KeyEvent, app: &mut App) -> AppResult<
         }
         KeyCode::Down => {
             app.select_next_category();
+        }
+        KeyCode::Char('d') | KeyCode::Char('D') => {
+            app.make_default_category(app.selected_category);
+        }
+        KeyCode::Char('x') | KeyCode::Char('X') => {
+            match app.selected_category {
+                Some(category) => {
+                    app.toggle_category_visible(category);
+                }
+                None => {}
+            }
+        }
+        // Check for category hotkeys
+        KeyCode::Char(character) if key_event.modifiers == KeyModifiers::CONTROL => {
+            match app.data.get_category_by_hotkey(character) {
+                Some(category) => {
+                    app.toggle_category_visible(category.id);
+                }
+                None => {}
+            }
         }
         _ => {}
     }

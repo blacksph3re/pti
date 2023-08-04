@@ -1,6 +1,7 @@
 use chrono::{Duration, Utc, DateTime};
 use serde::{Serialize, Deserialize};
 use std::cmp::Ordering;
+use itertools::Itertools;
 
 
 #[derive(Clone)]
@@ -37,6 +38,7 @@ pub struct Category {
     pub id: u32,
     pub name: String,
     pub hotkey: Option<char>,
+    pub visible: bool,
 }
 
 #[derive(Clone)]
@@ -48,6 +50,7 @@ pub struct Database {
     categories: Vec<Category>,
     pomodoro_duration_minutes: u32,
     active_pomodoro_starttime: Option<DateTime<Utc>>,
+    default_category_id: Option<u32>,
 }
 
 
@@ -69,18 +72,8 @@ impl Category {
             id,
             name,
             hotkey: None,
+            visible: true,
         }
-    }
-
-    pub fn get_hotkey_string(&self) -> String {
-        match self.hotkey {
-            Some(hotkey) => format!("({})", hotkey),
-            None => String::new(),
-        }
-    }
-
-    pub fn get_description_string(&self) -> String {
-        self.name.clone()
     }
 }
 
@@ -199,13 +192,56 @@ impl PrinteableTask {
 }
 
 pub fn get_printeable_tasklist(tasks: &[Task], categories: &[Category], parent: Option<u32>, indent: u32) -> Vec<PrinteableTask> {
-    let mut current_level_tasks: Vec<&Task> = tasks.iter().filter(|task| task.parent == parent).collect();
+    let mut current_level_tasks: Vec<&Task> = tasks.iter().filter(|task| {
+        let visible = match task.category {
+            Some(category_id) => get_category_by_id(categories, category_id).unwrap().visible,
+            None => true,
+        };
+        visible && task.parent == parent 
+    }).collect();
     current_level_tasks.sort_by(|a, b| a.date_added.cmp(&b.date_added));
     current_level_tasks.iter().map(|task| {
         let mut children = get_printeable_tasklist(tasks, categories, Some(task.id), indent + 1);
         children.insert(0, PrinteableTask::new(task, categories, indent));
         children
     }).flatten().collect()
+}
+
+pub struct PrinteableCategory {
+    pub id: u32,
+    category: Category,
+    default: bool,
+}
+
+impl PrinteableCategory {
+    pub fn new(category: Category, default: bool) -> PrinteableCategory {
+        PrinteableCategory {
+            id: category.id,
+            category,
+            default,
+        }
+    }
+
+    pub fn get_visible_string(&self) -> String {
+        match self.category.visible {
+            true => String::from("(x)"),
+            false => String::from("( )"),
+        }
+    }
+
+    pub fn get_hotkey_string(&self) -> String {
+        match self.category.hotkey {
+            Some(hotkey) => format!("({})", hotkey),
+            None => String::new(),
+        }
+    }
+
+    pub fn get_description_string(&self) -> String {
+        match self.default {
+            true => format!("{} (default)", self.category.name),
+            false => self.category.name.clone(),
+        }
+    }
 }
 
 impl Database {
@@ -215,6 +251,7 @@ impl Database {
             categories: Vec::new(),
             pomodoro_duration_minutes: 25,
             active_pomodoro_starttime: None,
+            default_category_id: None,
         }
     }
 
@@ -222,8 +259,10 @@ impl Database {
         let mut database = Database::new();
         database.categories.push(Category::new(0, "archive".to_string()));
         database.categories[0].hotkey = Some('a');
+        database.categories[0].visible = false;
         database.categories.push(Category::new(1, "todo".to_string()));
         database.categories[1].hotkey = Some('t');
+        database.default_category_id = Some(1);
         database.tasks.push(Task::new(0, "Task 1".to_string(), None));
         database.tasks.push(Task::new(1, "Task 2".to_string(), Some(0)));
         database.tasks.push(Task::new(2, "Task 3".to_string(), Some(1)));
@@ -252,7 +291,7 @@ impl Database {
 
     fn from_json_file(path: &str) -> Option<Database> {
         let json = std::fs::read_to_string(path).ok()?;
-        serde_json::from_str(&json).ok()
+        Some(serde_json::from_str(&json).expect("Could not parse database json"))
     }
 
     fn to_json_file(&self, path: &str) {
@@ -264,10 +303,16 @@ impl Database {
         get_printeable_tasklist(&self.tasks, &self.categories, None, 0)
     }
 
-    pub fn categories_printeable(&self) -> Vec<Category> {
-        let mut retval = self.categories.iter().cloned().collect::<Vec<Category>>();
-        retval.sort();
-        retval
+    pub fn categories_printeable(&self) -> Vec<PrinteableCategory> {
+        self.categories
+            .clone()
+            .into_iter()
+            .sorted()
+            .map(|category| {
+                let is_default = self.default_category_id == Some(category.id);
+                PrinteableCategory::new(category, is_default)
+            })
+            .collect::<Vec<PrinteableCategory>>()
     }
 
     pub fn check_task(&mut self, task_id: u32) {
@@ -286,6 +331,15 @@ impl Database {
 
     pub fn add_task_from_string(&mut self, description: String) {
         let highest_id = self.tasks.iter().map(|task| task.id).max().unwrap_or(0);
-        self.tasks.push(Task::new(highest_id+1, description, None));
+        self.tasks.push(Task::new(highest_id+1, description, self.default_category_id));
+    }
+
+    pub fn make_default_category(&mut self, category_id: Option<u32>) {
+        self.default_category_id = category_id;
+    }
+
+    pub fn toggle_category_visible(&mut self, category_id: u32) {
+        let mut category = self.categories.iter_mut().find(|category| category.id == category_id).expect("Category not found");
+        category.visible = !category.visible;
     }
 }

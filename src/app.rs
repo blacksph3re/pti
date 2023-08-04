@@ -141,6 +141,16 @@ impl<'a> App<'a> {
         self.selected_category = None;
     }
 
+    pub fn make_default_category(&mut self, category: Option<u32>) {
+        self.data.make_default_category(category);
+        self.data_changed = true;
+    }
+
+    pub fn toggle_category_visible(&mut self, category: u32) {
+        self.data.toggle_category_visible(category);
+        self.data_changed = true;
+    }
+
     pub fn select_no_task(&mut self) {
         self.selected_task = None;
     }
