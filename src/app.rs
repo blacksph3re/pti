@@ -38,16 +38,16 @@ fn open_file() -> File {
         .open(path.as_path())
         .expect(format!("Failed to open task file {}.", path.display()).as_str());
     
-    file.lock_exclusive()
-        .expect("Failed to lock task file.");
+    file.try_lock_exclusive()
+        .expect("Failed to lock task file. Check if another instance of pti is running.");
 
     file
 }
 
 impl<'a> Default for App<'a> {
     fn default() -> Self {
-        let db_file = open_file();
-        let db = Database::load_or_create();
+        let mut db_file = open_file();
+        let db = Database::load_or_create(&mut db_file);
         Self {
             database_file: db_file,
             tablestate: TableState::default(),
@@ -72,14 +72,14 @@ impl<'a> App<'a> {
     pub fn tick(&mut self) {
         // If some data has changed, save it.
         if self.data_changed {
-            self.data.save();
+            self.data.save(&mut self.database_file);
             self.data_changed = false;
         }
 
         // Check if a pomodoro is over
         match self.data.check_active_pomodoro_over() {
             Some(task_descriptions) => {
-                self.data.save();
+                self.data.save(&mut self.database_file);
                 let body = format!("{} Tasks are over:\n{}", task_descriptions.len(), task_descriptions.join("\n"));
                 self.notification_manager.notify("Pomodoro over!", &body);
             }

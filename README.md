@@ -37,6 +37,7 @@ Hotkeys in TODO view list:
 - Enter/Esc: Start typing a task
 - c: Category view
 - \<category hotkey\>: Assigns the category to this task
+- n: Test notifications
 
 Hotkeys in TODO edit mode:
 - Enter: Save task

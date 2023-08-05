@@ -1,5 +1,7 @@
 use chrono::{Duration, Utc, DateTime};
 use serde::{Serialize, Deserialize};
+use std::fs::File;
+use std::io::{Seek, Read, Write};
 
 #[derive(Clone)]
 #[derive(Serialize)]
@@ -253,33 +255,27 @@ impl Database {
         database
     }
 
-    pub fn load_or_create() -> Database {
-        let filename: String = match std::env::var("POMODORO_DATABASE") {
-            Ok(filename) => filename,
-            Err(_) => "database.json".to_string(),
-        };
-        match Database::from_json_file(&filename) {
+    pub fn load_or_create(file: &mut File) -> Database {
+        match Database::from_json_file(file) {
             Some(database) => database,
             None => Database::example_db(),
         }
     }
 
-    pub fn save(&self) {
-        let filename: String = match std::env::var("POMODORO_DATABASE") {
-            Ok(filename) => filename,
-            Err(_) => "database.json".to_string(),
-        };
-        self.to_json_file(&filename);
+    fn from_json_file(file: &mut File) -> Option<Database> {
+        let mut data = String::new();
+        file.read_to_string(&mut data).ok()?;
+        match data.len() {
+            0 => None,
+            _ => Some(serde_json::from_str(&data).expect("Could not parse json file")),
+        }
     }
 
-    fn from_json_file(path: &str) -> Option<Database> {
-        let json = std::fs::read_to_string(path).ok()?;
-        Some(serde_json::from_str(&json).expect("Could not parse database json"))
-    }
-
-    fn to_json_file(&self, path: &str) {
+    pub fn save(&self, file: &mut File) {
         let serialized = serde_json::to_string_pretty(self).unwrap();
-        std::fs::write(path, serialized).expect("Could not save database");
+        file.rewind().unwrap();
+        file.set_len(0).expect("Could not truncate file");
+        file.write_all(serialized.as_bytes()).expect("Could not write to file");
     }
 
     pub fn tasks_printeable(&self) -> Vec<PrinteableTask> {
