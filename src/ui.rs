@@ -35,7 +35,7 @@ fn render_todo_table<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>, rect: 
             Constraint::Length(3),
             Constraint::Length(8),
             Constraint::Length(10),
-            Constraint::Min(10),
+            Constraint::Percentage(100),
         ]);
     let selected_task_index = match app.selected_task {
         Some(selected) => tasklist.iter().position(|task| task.id == selected),

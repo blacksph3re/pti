@@ -59,6 +59,16 @@ fn handle_text_view_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> 
             app.textarea.move_cursor(CursorMove::Jump(0, 0));
             app.textarea.delete_line_by_end();
         }
+        KeyCode::Char(character) if key_event.modifiers == KeyModifiers::CONTROL => {
+            match app.data.get_category_by_hotkey(character) {
+                Some(category) => {
+                    app.toggle_category_visible(category.id);
+                }
+                None => {
+                    app.textarea.input(key_event);
+                }
+            }
+        }
         _ => {
             app.textarea.input(key_event);
         }

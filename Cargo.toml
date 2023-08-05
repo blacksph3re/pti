@@ -18,3 +18,5 @@ tui-textarea = { git = "https://github.com/haydenflinner/tui-textarea.git", vers
 itertools = "0.11.0"
 notify-rust = { version = "4.8.0", optional = true }
 rodio = { version = "0.17.1", optional = true }
+dirs = "5.0.1"
+fs2 = "0.4.3"

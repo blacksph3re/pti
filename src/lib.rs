@@ -15,6 +15,8 @@ pub mod handler;
 
 pub mod model;
 
+pub mod constants;
+
 #[cfg(not(feature = "notifications"))]
 pub mod notification {
     pub struct NotificationManager {}

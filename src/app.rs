@@ -1,6 +1,9 @@
 use std::error;
+use std::fs::{File, OpenOptions};
+use fs2::FileExt;
 use crate::model::Database;
 use crate::notification::NotificationManager;
+use crate::constants::{TASK_FILE, get_full_path};
 use ratatui::widgets::TableState;
 use tui_textarea::TextArea;
 
@@ -9,6 +12,8 @@ pub type AppResult<T> = std::result::Result<T, Box<dyn error::Error>>;
 
 /// Application.
 pub struct App<'a> {
+    pub database_file: File,
+
     pub tablestate: TableState,
     pub textarea: TextArea<'a>,
     /// Is the application running?
@@ -24,13 +29,31 @@ pub struct App<'a> {
     pub notification_manager: NotificationManager,
 }
 
+fn open_file() -> File {
+    let path = get_full_path(TASK_FILE);
+    let file = OpenOptions::new()
+        .read(true)
+        .write(true)
+        .create(true)
+        .open(path.as_path())
+        .expect(format!("Failed to open task file {}.", path.display()).as_str());
+    
+    file.lock_exclusive()
+        .expect("Failed to lock task file.");
+
+    file
+}
+
 impl<'a> Default for App<'a> {
     fn default() -> Self {
+        let db_file = open_file();
+        let db = Database::load_or_create();
         Self {
+            database_file: db_file,
             tablestate: TableState::default(),
             textarea: TextArea::default(),
             running: true,
-            data: Database::load_or_create(),
+            data: db,
             data_changed: false,
             selected_task: None,
             selected_category: None,
@@ -163,6 +186,11 @@ impl<'a> App<'a> {
 
     pub fn toggle_category_visible(&mut self, category: u32) {
         self.data.toggle_category_visible(category);
+        // Our selected task might have gone invisible, so we need to check that.
+        let new_tasklist = self.data.tasks_printeable();
+        if new_tasklist.iter().find(|task| Some(task.id) == self.selected_task).is_none() {
+            self.selected_task = None;
+        }
         self.data_changed = true;
     }
 
@@ -192,10 +220,14 @@ impl<'a> App<'a> {
                 self.data.set_category(selected_task_id, category);
                 // Find the closest task to the previous one in case this one got invisible
                 let new_tasklist = self.data.tasks_printeable();
-                if previous_index >= new_tasklist.len() {
-                    previous_index = new_tasklist.len() - 1;
+                if new_tasklist.len() == 0 {
+                    self.selected_task = None;
+                } else {
+                    if previous_index >= new_tasklist.len() {
+                        previous_index = new_tasklist.len() - 1;
+                    }
+                    self.selected_task = Some(new_tasklist[previous_index].id);    
                 }
-                self.selected_task = Some(new_tasklist[previous_index].id);
 
                 self.data_changed = true;
             }
