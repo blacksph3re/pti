@@ -193,14 +193,18 @@ pub struct PrinteableCategory {
     pub id: u32,
     category: Category,
     default: bool,
+    num_tasks: usize,
+    num_tasks_checked: usize
 }
 
 impl PrinteableCategory {
-    pub fn new(category: Category, default: bool) -> PrinteableCategory {
+    pub fn new(category: Category, default: bool, num_tasks: usize, num_tasks_checked: usize) -> PrinteableCategory {
         PrinteableCategory {
             id: category.id,
             category,
             default,
+            num_tasks,
+            num_tasks_checked,
         }
     }
 
@@ -224,10 +228,14 @@ impl PrinteableCategory {
         } else {
             self.category.name.clone()
         };
-        match self.default {
-            true => format!("{} (default)", name),
-            false => name,
-        }
+        format!("{} {}", name, match self.default {
+            true => " (default)",
+            false => "",
+        })
+    }
+
+    pub fn get_count_string(&self) -> String {
+        format!("{}/{}", self.num_tasks_checked, self.num_tasks)
     }
 }
 
@@ -288,7 +296,9 @@ impl Database {
             .into_iter()
             .map(|category| {
                 let is_default = self.default_category_id == category.id;
-                PrinteableCategory::new(category, is_default)
+                let num_tasks = self.tasks.iter().filter(|task| task.category == category.id).count();
+                let num_tasks_checked = self.tasks.iter().filter(|task| task.category == category.id && task.done).count();
+                PrinteableCategory::new(category, is_default, num_tasks, num_tasks_checked)
             })
             .collect::<Vec<PrinteableCategory>>();
         retval.sort_by(|a, b| a.category.name.cmp(&b.category.name));

@@ -50,7 +50,7 @@ fn render_todo_table<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>, rect: 
 
 fn render_category_table<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>, rect: &Rect) {
     let categorylist = app.data.categories_printeable();
-    let header_cells = ["Show", "Hotkey", "Name"]
+    let header_cells = ["Show", "Hotkey", "Counter", "Name"]
         .iter()
         .map(|h| Cell::from(*h).style(Style::default().fg(Color::Red)));
     let header = Row::new(header_cells)
@@ -61,6 +61,7 @@ fn render_category_table<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>, re
         Row::new(vec![
             Cell::from(item.get_visible_string()),
             Cell::from(item.get_hotkey_string()),
+            Cell::from(item.get_count_string()),
             Cell::from(item.get_description_string()),
         ])
     }).collect::<Vec<Row>>();
@@ -71,6 +72,7 @@ fn render_category_table<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>, re
         .widths(&[
             Constraint::Length(4),
             Constraint::Length(6),
+            Constraint::Length(7),
             Constraint::Percentage(100),
         ]);
     let selected_category_index = match app.selected_category {
