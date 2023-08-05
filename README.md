@@ -24,4 +24,25 @@ Make sure you have `~/.cargo/bin` in your `$PATH` if you want to start pti from 
 
 # Usage
 
-TODO Write
+Global hotkeys:
+- Ctrl + q/Ctrl + c: Quit
+- Ctrl + \<category hotkey\>: Toggles the visibility of the category with this hotkey
+
+
+Hotkeys in TODO view list:
+- Up/Down: Move cursor (also, when typing, jump back to todo-list view)
+- PageUp/PageDown: Move task up or down
+- x/Space: Check a task
+- p: Toggle whether the task is part of the active pomodoro, start one if not running
+- Enter/Esc: Start typing a task
+- c: Category view
+- \<category hotkey\>: Assigns the category to this task
+
+Hotkeys in TODO edit mode:
+- Enter: Save task
+- Up/Down: Jump to todo-list view
+
+Hotkeys in CATEGORY view list:
+- Up/Down: Move cursor
+- x/Space: Toggle visibility of the category
+- d: Make category default

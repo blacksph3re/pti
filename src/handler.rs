@@ -7,7 +7,7 @@ fn handle_todo_view_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> 
         KeyCode::Esc | KeyCode::Enter => {
             app.select_no_task();
         }
-        KeyCode::Char('x') | KeyCode::Char('X') => {
+        KeyCode::Char('x') | KeyCode::Char('X') | KeyCode::Char(' ') => {
             app.check_task();
         }
         KeyCode::Char('c') | KeyCode::Char('C') | KeyCode::Char('h') | KeyCode::Char('H') => {
@@ -36,11 +36,8 @@ fn handle_todo_view_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> 
             match app.data.get_category_by_hotkey(character) {
                 Some(category) => {
                     // Without ctrl, assigns the current task to the category. With crtl, toggles the category visibility
-                    if key_event.modifiers == KeyModifiers::CONTROL {
-                        app.toggle_category_visible(category.id);
-                    } else {
-                        app.set_category(category.id);
-                    }
+                    // The with-ctrl case is handled globally
+                    app.set_category(category.id);
                 }
                 None => {}
             }
@@ -64,16 +61,6 @@ fn handle_text_view_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> 
             app.add_task(app.textarea.lines()[0].to_string());
             app.textarea.move_cursor(CursorMove::Jump(0, 0));
             app.textarea.delete_line_by_end();
-        }
-        KeyCode::Char(character) if key_event.modifiers == KeyModifiers::CONTROL => {
-            match app.data.get_category_by_hotkey(character) {
-                Some(category) => {
-                    app.toggle_category_visible(category.id);
-                }
-                None => {
-                    app.textarea.input(key_event);
-                }
-            }
         }
         _ => {
             app.textarea.input(key_event);
@@ -100,41 +87,47 @@ fn handle_category_view_events(key_event: KeyEvent, app: &mut App) -> AppResult<
         KeyCode::Char('d') | KeyCode::Char('D') => {
             app.make_default_category(app.selected_category.expect("Category handler called without a selected category"));
         }
-        KeyCode::Char('x') | KeyCode::Char('X') => {
+        KeyCode::Char('x') | KeyCode::Char('X') | KeyCode::Char(' ') => {
             app.toggle_category_visible(app.selected_category.expect("Category handler called without a selected category"));
-        }
-        // Check for category hotkeys
-        KeyCode::Char(character) if key_event.modifiers == KeyModifiers::CONTROL => {
-            match app.data.get_category_by_hotkey(character) {
-                Some(category) => {
-                    app.toggle_category_visible(category.id);
-                }
-                None => {}
-            }
         }
         _ => {}
     }
     Ok(())
 }
 
+fn handle_scope_local_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
+    if app.selected_category == None {
+        if app.selected_task == None {
+            handle_text_view_events(key_event, app)
+        } else {
+            handle_todo_view_events(key_event, app)
+        }
+    } else {
+        handle_category_view_events(key_event, app)
+    }
+}
+
 /// Handles the key events and updates the state of [`App`].
 pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
     match key_event.code {
         // Exit application on `Ctrl-C`
-        KeyCode::Char('c') | KeyCode::Char('C') if key_event.modifiers == KeyModifiers::CONTROL => {
+        KeyCode::Char('c') | KeyCode::Char('C') | KeyCode::Char('q') | KeyCode::Char('Q') if key_event.modifiers == KeyModifiers::CONTROL => {
             app.quit();
             Ok(())
         }
-        _ => {
-            if app.selected_category == None {
-                if app.selected_task == None {
-                    handle_text_view_events(key_event, app)
-                } else {
-                    handle_todo_view_events(key_event, app)
+        KeyCode::Char(character) if key_event.modifiers == KeyModifiers::CONTROL => {
+            match app.data.get_category_by_hotkey(character) {
+                Some(category) => {
+                    app.toggle_category_visible(category.id);
+                    Ok(())
                 }
-            } else {
-                handle_category_view_events(key_event, app)
+                None => {
+                    handle_scope_local_key_events(key_event, app)
+                }
             }
+        }
+        _ => {
+            handle_scope_local_key_events(key_event, app)
         }
     }
 }
