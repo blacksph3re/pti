@@ -19,6 +19,12 @@ fn handle_todo_view_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> 
         KeyCode::Down => {
             app.select_next_task();
         }
+        KeyCode::PageUp => {
+            app.move_task_up();
+        }
+        KeyCode::PageDown => {
+            app.move_task_down();
+        }
         KeyCode::Char('p') | KeyCode::Char('P') => {
             app.toggle_pomodoro();
         }

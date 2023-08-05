@@ -1,7 +1,5 @@
 use chrono::{Duration, Utc, DateTime};
 use serde::{Serialize, Deserialize};
-use std::cmp::{Ordering};
-use itertools::Itertools;
 
 #[derive(Clone)]
 #[derive(Serialize)]
@@ -25,6 +23,7 @@ pub struct Task {
     parent: Option<u32>,
     category: u32,
     date_added: DateTime<Utc>,
+    order: u32,
 }
 
 #[derive(Clone)]
@@ -76,18 +75,6 @@ impl Category {
     }
 }
 
-impl PartialOrd for Category {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl Ord for Category {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.name.cmp(&other.name)
-    }
-}
-
 
 impl Task {
     pub fn new(id: u32, description: String, category: u32) -> Task {
@@ -100,6 +87,7 @@ impl Task {
             category,
             parent: None,
             date_added: Utc::now(),
+            order: id,
         }
     }
 
@@ -191,7 +179,7 @@ pub fn get_printeable_tasklist(tasks: &[Task], categories: &[Category], parent: 
     let mut current_level_tasks: Vec<&Task> = tasks.iter().filter(|task| {
         get_category_by_id(categories, task.category).unwrap().visible && task.parent == parent 
     }).collect();
-    current_level_tasks.sort_by(|a, b| a.date_added.cmp(&b.date_added));
+    current_level_tasks.sort_by(|a, b| a.order.cmp(&b.order));
     current_level_tasks.iter().map(|task| {
         let mut children = get_printeable_tasklist(tasks, categories, Some(task.id), indent + 1);
         children.insert(0, PrinteableTask::new(task, categories, indent));
@@ -299,15 +287,16 @@ impl Database {
     }
 
     pub fn categories_printeable(&self) -> Vec<PrinteableCategory> {
-        self.categories
+        let mut retval = self.categories
             .clone()
             .into_iter()
-            .sorted()
             .map(|category| {
                 let is_default = self.default_category_id == category.id;
                 PrinteableCategory::new(category, is_default)
             })
-            .collect::<Vec<PrinteableCategory>>()
+            .collect::<Vec<PrinteableCategory>>();
+        retval.sort_by(|a, b| a.category.name.cmp(&b.category.name));
+        retval
     }
 
     pub fn check_task(&mut self, task_id: u32) {
@@ -397,5 +386,33 @@ impl Database {
             },
             None => None,
         }
+    }
+
+    pub fn order_task_before_other(&mut self, task_id: u32, other_task_id: u32) -> Result<(), &'static str> {
+        let moved_task_order = self.tasks.iter().find(|task| task.id == task_id).expect("Task not found").order;
+        let other_task_order = self.tasks.iter().find(|task| task.id == other_task_id).expect("Other task not found").order;
+        if moved_task_order < other_task_order {
+            return Err("Task is already before other task");
+        }
+        // All tasks with an order in between the two tasks are increased by one, including other_task
+        self.tasks.iter_mut().filter(|task| task.order >= other_task_order && task.order < moved_task_order).for_each(|task| task.order += 1);
+        // The moved task is set to the previous order of the other task
+        self.tasks.iter_mut().find(|task| task.id == task_id).expect("Task not found").order = other_task_order;
+
+        Ok(())
+    }
+
+    pub fn order_task_after_other(&mut self, task_id: u32, other_task_id: u32) -> Result<(), &'static str> {
+        let moved_task_order = self.tasks.iter().find(|task| task.id == task_id).expect("Task not found").order;
+        let other_task_order = self.tasks.iter().find(|task| task.id == other_task_id).expect("Other task not found").order;
+        if moved_task_order > other_task_order {
+            return Err("Task is already after other task");
+        }
+        // All tasks with an order in between the two tasks are decreased by one, including other_task
+        self.tasks.iter_mut().filter(|task| task.order <= other_task_order && task.order > moved_task_order).for_each(|task| task.order -= 1);
+        // The moved task is set to the next order of the other task
+        self.tasks.iter_mut().find(|task| task.id == task_id).expect("Task not found").order = other_task_order;
+
+        Ok(())
     }
 }

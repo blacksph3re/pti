@@ -237,9 +237,45 @@ impl<'a> App<'a> {
 
     pub fn toggle_pomodoro(&mut self) {
         match self.selected_task {
-            Some(selected) => {
-                self.data.toggle_pomodoro(selected);
+            Some(selected_task_id) => {
+                self.data.toggle_pomodoro(selected_task_id);
                 self.data_changed = true;
+            }
+            None => {}
+        }
+    }
+
+    pub fn move_task_up(&mut self) {
+        match self.selected_task {
+            Some(selected_task_id) => {
+                let tasklist = self.data.tasks_printeable();
+                let idx = self.data.tasks_printeable().iter().position(|task| task.id == selected_task_id);
+                match idx {
+                    Some(0) => {} // Already the first element, can't move up.
+                    Some(index) => {
+                        self.data.order_task_before_other(selected_task_id, tasklist[index - 1].id).expect("Could not reorder tasks");
+                        self.data_changed = true;
+                    }
+                    None => {}
+                }
+            }
+            None => {}
+        }
+    }
+
+    pub fn move_task_down(&mut self) {
+        match self.selected_task {
+            Some(selected_task_id) => {
+                let tasklist = self.data.tasks_printeable();
+                let idx = self.data.tasks_printeable().iter().position(|task| task.id == selected_task_id);
+                match idx {
+                    Some(index) if index == tasklist.len() - 1 => {} // Already the last element, can't move down.
+                    Some(index) => {
+                        self.data.order_task_after_other(selected_task_id, tasklist[index + 1].id).expect("Could not reorder tasks");
+                        self.data_changed = true;
+                    }
+                    None => {}
+                }
             }
             None => {}
         }
