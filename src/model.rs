@@ -194,17 +194,19 @@ pub struct PrinteableCategory {
     category: Category,
     default: bool,
     num_tasks: usize,
-    num_tasks_checked: usize
+    num_tasks_checked: usize,
+    total_time: Duration
 }
 
 impl PrinteableCategory {
-    pub fn new(category: Category, default: bool, num_tasks: usize, num_tasks_checked: usize) -> PrinteableCategory {
+    pub fn new(category: Category, default: bool, num_tasks: usize, num_tasks_checked: usize, total_time: Duration) -> PrinteableCategory {
         PrinteableCategory {
             id: category.id,
             category,
             default,
             num_tasks,
             num_tasks_checked,
+            total_time,
         }
     }
 
@@ -224,18 +226,20 @@ impl PrinteableCategory {
 
     pub fn get_description_string(&self) -> String {
         let name = if self.category.name == "nocat" {
-            "no category".to_string()
+            "no category"
         } else {
-            self.category.name.clone()
+            &self.category.name
         };
-        format!("{} {}", name, match self.default {
+        let default = match self.default {
             true => " (default)",
             false => "",
-        })
+        };
+        let stats = self.get_stats_string();
+        format!("{}{} [{}]", name, default, stats)
     }
 
-    pub fn get_count_string(&self) -> String {
-        format!("{}/{}", self.num_tasks_checked, self.num_tasks)
+    pub fn get_stats_string(&self) -> String {
+        format!("{}/{}, {} min", self.num_tasks_checked, self.num_tasks, self.total_time.num_minutes())
     }
 }
 
@@ -294,7 +298,8 @@ impl Database {
                 let is_default = self.default_category_id == category.id;
                 let num_tasks = self.tasks.iter().filter(|task| task.category == category.id).count();
                 let num_tasks_checked = self.tasks.iter().filter(|task| task.category == category.id && task.done).count();
-                PrinteableCategory::new(category, is_default, num_tasks, num_tasks_checked)
+                let total_time_accumulated = self.tasks.iter().filter(|task| task.category == category.id).fold(Duration::seconds(0), |acc, task| acc + task.time_spent());
+                PrinteableCategory::new(category, is_default, num_tasks, num_tasks_checked, total_time_accumulated)
             })
             .collect::<Vec<PrinteableCategory>>();
         retval.sort_by(|a, b| a.category.name.cmp(&b.category.name));
