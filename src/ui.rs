@@ -17,15 +17,22 @@ fn render_todo_table<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>, rect: 
         .style(Style::default().bg(Color::Blue))
         .height(1)
         .bottom_margin(1);
-    let rows = tasklist.iter().map(|item| {
+    let mut rows = tasklist.iter().map(|item| {
         Row::new(vec![
             Cell::from(item.get_checkbox_string()),
             Cell::from(item.get_time_spent_string()),
             Cell::from(item.get_category_string()),
             Cell::from(item.get_description_string()),
         ])
-    });
-
+    }).collect::<Vec<Row>>();
+    if rows.len() == 0 {
+        rows.push(Row::new(vec![
+            Cell::from(""),
+            Cell::from(""),
+            Cell::from(""),
+            Cell::from("No tasks yet, press Enter and type one!"),
+        ]));
+    }
 
     let t = Table::new(rows)
         .header(header)

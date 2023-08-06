@@ -256,10 +256,6 @@ impl Database {
         database.categories[0].visible = false;
         database.categories.push(Category::new(2, "todo".to_string(), Some('t')));
         database.default_category_id = 2;
-        database.tasks.push(Task::new(0, "Task 1".to_string(), 0));
-        database.tasks.push(Task::new(1, "Task 2".to_string(), 1));
-        database.tasks.push(Task::new(2, "Task 3".to_string(), 2));
-        database.tasks.push(Task::new(3, "Task 4".to_string(), 0));
         database
     }
 
