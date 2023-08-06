@@ -1,12 +1,24 @@
 # PTI - Pomodoro Timer Interactive
 
-This is a no-bullshit, terminal-native keyboard-only pomodoro timer that suits the way I like to track my tasks and time. Which is, that in the morning I create a list of tasks for the project I want to work on, during the day I tick them off through pomodoros and in the evening I move all tasks to the archive, contemplating on how much time I have wasted on which task. I don't like to use the mouse, and I don't like to use the browser. I like to use the terminal, and also I like when applications react faster than my eye can perceive.
+This is a no-bullshit, terminal-native keyboard-only pomodoro timer built on [ratatui](https://github.com/ratatui-org/ratatui) that suits the way I like to track my tasks and time. Which is, that in the morning I create a list of tasks for the project I want to work on, during the day I tick them off through pomodoros and in the evening I move all tasks to the archive, contemplating on how much time I have wasted on which task. I don't like to use the mouse, and I don't like to use the browser. I like to use the terminal, and also I like when applications react faster than my eye can perceive.
 
 # Features
 
 - Tracking tasks in different categories
 - Hide categories, based on the scope you're working on
 - Timing pomodoros, with optional notifications at the end
+
+Capture tasks with an intuitive editor:
+
+![Capture tasks](screenshots/image.png)
+
+Start a pomodoro, and accumulate time on your tasks:
+
+![Start pomodoros](screenshots/image-1.png)
+
+See categories, toggle visibility:
+
+![See categories](screenshots/image-2.png)
 
 # Installation
 
